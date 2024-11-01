@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from PIL import Image
 
-st.title('language module')
+st.title('Language 모듈')
 
 # 왼쪽 사이드바에 캐릭터 선택 옵션
 st.sidebar.header('캐릭터 선택')
