@@ -1,21 +1,44 @@
 import streamlit as st
-import plotly.graph_objects as go
-from PIL import Image
+
+# 페이지 레이아웃 설정
+st.set_page_config(
+    page_title="Language 모듈",
+    page_icon="🍜",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# CSS로 스타일 조정
+st.markdown("""
+    <style>
+    .main {
+        padding: 20px;
+    }
+    .stProgress > div > div > div > div {
+        background-color: #1f77b4;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 st.title('Language 모듈')
 
 # 왼쪽 사이드바에 캐릭터 선택 옵션
-st.sidebar.header('캐릭터 선택')
-character = st.sidebar.radio(
-    "분석가를 선택하세요:",
-    ['유비 (친절한 분석)', '관우 (엄격한 분석)', '장비 (과격한 분석)']
-)
+with st.sidebar:
+    st.header('캐릭터 선택')
+    character = st.radio(
+        "분석가를 선택하세요:",
+        ['유비 (친절한 분석)', '관우 (엄격한 분석)', '장비 (과격한 분석)']
+    )
 
-# 음식 선택 (오른쪽 상단)
-food = st.selectbox(
-    '분석할 음식을 선택하세요:',
-    ['짜장면', '칼국수', '메밀국수']
-)
+# 두 컬럼으로 레이아웃 구성
+col1, col2 = st.columns([2, 3])
+
+with col1:
+    # 음식 선택
+    food = st.selectbox(
+        '분석할 음식을 선택하세요:',
+        ['짜장면', '칼국수', '메밀국수']
+    )
 
 # 음식별 정보 딕셔너리
 food_info = {
@@ -48,37 +71,23 @@ food_info = {
 # 선택된 캐릭터의 스타일 표시
 character_name = character.split(' ')[0]
 
-# 음식 분석 결과 표시
-st.header(f'🍜 {food} 분석 결과')
+with col2:
+    # 음식 분석 결과 표시
+    st.header(f'🍜 {food} 분석 결과')
 
-# 음식 설명
-st.subheader("💭 분석가의 한마디")
-st.write(food_info[food]['설명'][character_name])
+    # 음식 설명
+    st.subheader("💭 분석가의 한마디")
+    st.write(food_info[food]['설명'][character_name])
 
-# 칼로리 그래프
-st.subheader("📊 일일 권장 칼로리 대비 섭취량")
-calories = food_info[food]['칼로리']
-fig = go.Figure(go.Indicator(
-    mode = "gauge+number",
-    value = calories,
-    domain = {'x': [0, 1], 'y': [0, 1]},
-    title = {'text': "칼로리"},
-    gauge = {
-        'axis': {'range': [None, 2000]},
-        'bar': {'color': "darkblue"},
-        'steps': [
-            {'range': [0, 800], 'color': "lightgray"},
-            {'range': [800, 1500], 'color': "gray"}
-        ],
-        'threshold': {
-            'line': {'color': "red", 'width': 4},
-            'thickness': 0.75,
-            'value': calories
-        }
-    }
-))
+    # 칼로리 표시
+    st.subheader("📊 일일 권장 칼로리 대비 섭취량")
+    calories = food_info[food]['칼로리']
+    progress = calories / 2000  # 2000칼로리 기준
+    
+    # 프로그레스 바와 텍스트를 컨테이너로 묶기
+    with st.container():
+        st.progress(progress)
+        st.write(f"섭취 칼로리: {calories}kcal (권장량의 {progress*100:.1f}%)")
 
-st.plotly_chart(fig)
-
-# 추가 정보
-st.info(f'💡 일일 권장 칼로리 2000kcal 기준, {food}({calories}kcal)는 약 {(calories/2000*100):.1f}%를 차지합니다.')
+    # 추가 정보
+    st.info(f'💡 일일 권장 칼로리 2000kcal 기준, {food}({calories}kcal)는 약 {(calories/2000*100):.1f}%를 차지합니다.')
